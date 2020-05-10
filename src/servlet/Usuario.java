@@ -10,8 +10,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.Spring;
+import javax.xml.ws.RequestWrapper;
+
 import beans.BeanCursoJsp;
 import dao.DaoUsuario;
+import jdk.nashorn.internal.ir.RuntimeNode.Request;
 
 @MultipartConfig
 @WebServlet("/salvarUsuario")
@@ -80,30 +83,48 @@ public class Usuario extends HttpServlet {
 			String senha = request.getParameter("senha");
 			String nome = request.getParameter("nome");
 			String telefone = request.getParameter("telefone");
-		
 
 			BeanCursoJsp usuario = new BeanCursoJsp();
-			usuario.setId(id != null && !id.isEmpty() ? Long.parseLong(id) : 0);
+			usuario.setId(id != null && !id.isEmpty() ? Long.parseLong(id) : null);
 			usuario.setLogin(login);
 			usuario.setSenha(senha);
 			usuario.setNome(nome);
 			usuario.setTelefone(telefone);
-			
+
 			try {
-				
-				if(id == null || id.isEmpty() && !daoUsuario.validarLogin(login)) {
-					request.setAttribute("msg", "Já existe um usuário com este login!");
+
+				String msg = null;
+				boolean podeInserir = true;
+
+				if (id == null || id.isEmpty() 
+						&& !daoUsuario.validarLogin(login, senha, id)) {// QUANDO DOR USUÁRIO NOVO
+					msg = "Usuário já existe com o mesmo login!";
+					podeInserir = false;
+
+				} else if (id == null || id.isEmpty() 
+						&& !daoUsuario.validarSenha(senha)) {// QUANDO FOR USUÁRIO NOVO
+					msg = "\n A senha já existe para outro usuário!";
+					podeInserir = false;
 				}
 
-				if (id == null || id.isEmpty() && daoUsuario.validarLogin(login)) {
-					
+				if (msg != null) {
+					request.setAttribute("msg", msg);
+				}
+
+				if (id == null || id.isEmpty() 
+						&& daoUsuario.validarLogin(login, senha, id) && podeInserir) {
+
 					daoUsuario.salvar(usuario);
-					
-				} else if(id != null && !id.isEmpty()) {
+
+				} else if (id != null && !id.isEmpty() && podeInserir) {
 					daoUsuario.atualizar(usuario);
 				}
+				
+				if (!podeInserir) {
+					request.setAttribute("user", usuario);
+				}
 
-				// para ficar na mesma pagina ap�s cadastrar novo usu�rio:
+				// para ficar na mesma pagina apos cadastrar novo usu�rio:
 
 				RequestDispatcher view = request.getRequestDispatcher("/cadastroUsuario.jsp");
 				request.setAttribute("usuarios", daoUsuario.listar());
