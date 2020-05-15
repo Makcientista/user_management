@@ -18,8 +18,10 @@
 <body>	
 	<jsp:setProperty property="*" name="calcula"/>
 	<h3>Seja bem vindo ao sistema em jsp</h3>
-	<a href="salvarUsuario?acao=listartodos"><img border="0" alt="Cadastro de usuários" title="Cadastro de usuários" src="resources/img/usuario.jpg" width="100" height="100"></a></a>
-	<a href="salvarUsuario?acao=listartodos">
+	
+	<a href="salvarUsuario?acao=listartodos"><img width="100px" height="100px" title="Cadastro de usuário" alt="Cadastro de usuário" src="resources/img/usuario.jpg"> </a>
+	
+	<a href="salvarProduto?acao=listartodos"><img width="100px" height="100px" title="Cadastro de Produto" alt="Cadastro de Produto" src="resources/img/icone-produto.png"> </a>
 
 </body>
 </html>
